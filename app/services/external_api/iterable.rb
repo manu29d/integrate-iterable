@@ -48,12 +48,13 @@ module ExternalApi
         url = "#{get_base_url(region)}#{API_URL}/track"
         payload = { email: user&.email, eventName: event_type }
         post(url, payload, get_headers(region))
+        Email.new.send_email(region, user)
       end
     end
 
     # In a real-world scenario, each of these classes
     # shall be in it's own files
-    # This class is supposed handle adding users to the Iterable API
+    # This class is supposed to handle adding users to the Iterable API
     class User
       include IterableHelper
       include HandleRequests
@@ -69,8 +70,28 @@ module ExternalApi
       end
 
       def create_user(user_email, region = 'us')
-        url = "#{get_base_url(region)}#{get_api_key(region)}/update"
+        url = "#{get_base_url(region)}#{API_URL}/update"
         payload = { email: user_email }
+        post(url, payload, get_headers(region))
+      end
+    end
+
+    # In a real-world scenario, each of these classes
+    # shall be in it's own files
+    # This class is supposed to handle sending emails via the Iterable API
+    class Email
+      include IterableHelper
+      include HandleRequests
+      API_URL = '/email'
+
+      def send_email(region, user)
+        # Can't send emails without an address
+        return unless user&.email
+
+        region ||= user.region
+
+        url = "#{get_base_url(region)}#{API_URL}/target"
+        payload = { recipientEmail: user.email }
         post(url, payload, get_headers(region))
       end
     end

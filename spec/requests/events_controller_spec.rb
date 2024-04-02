@@ -20,15 +20,18 @@ RSpec.describe 'EventsControllers', type: :request do
 
   before { sign_in user }
 
-  def play_request(api_host, params, headers)
+  def play_request(params)
     stub_request(:post, "https://#{api_host}/api/events/track")
       .with(body: request_body, headers:)
+      .to_return(status: 200, body: '{}', headers: {})
+    stub_request(:post, "https://#{api_host}/api/email/target")
+      .with(body: { recipientEmail: user.email }, headers:)
       .to_return(status: 200, body: '{}', headers: {})
 
     post(action_path, params:)
 
     expect(a_request(:post, "https://#{api_host}/api/events/track")
-      .with(body: request_body, headers:)).to have_been_made
+    .with(body: request_body, headers:)).to have_been_made.once
   end
 
   describe 'POST /create_event_a' do
@@ -41,22 +44,26 @@ RSpec.describe 'EventsControllers', type: :request do
     end
 
     context 'when making requests to US API' do
+      let(:api_host) { us_api_host }
+      let(:headers) { us_headers }
       it 'should create event A successfully' do
-        play_request(us_api_host, request_body, us_headers)
+        play_request(request_body)
       end
     end
 
     context 'when making requests to EU API' do
+      let(:api_host) { eu_api_host }
+      let(:headers) { eu_headers }
       context 'when region is provided as a param' do
         it 'should create event A successfully' do
-          play_request(eu_api_host, request_body.merge(region: 'eu'), eu_headers)
+          play_request(request_body.merge(region: 'eu'))
         end
       end
 
       context 'when region is an attribute of user' do
         it 'should create event A successfully' do
           user.region = :eu
-          play_request(eu_api_host, request_body, eu_headers)
+          play_request(request_body)
         end
       end
     end
@@ -71,21 +78,33 @@ RSpec.describe 'EventsControllers', type: :request do
       }
     end
 
-    it 'should create event B successfully' do
-      play_request(us_api_host, request_body, us_headers)
+    after do
+      expect(a_request(:post, "https://#{api_host}/api/email/target")
+      .with(body: { recipientEmail: user.email }, headers:)).to have_been_made.once
+    end
+
+    context 'when making requests to US API' do
+      let(:api_host) { us_api_host }
+      let(:headers) { us_headers }
+      it 'should create event B successfully' do
+        play_request(request_body)
+      end
     end
 
     context 'when making requests to EU API' do
+      let(:api_host) { eu_api_host }
+      let(:headers) { eu_headers }
+
       context 'when region is provided as a param' do
         it 'should create event B successfully' do
-          play_request(eu_api_host, request_body.merge(region: 'eu'), eu_headers)
+          play_request(request_body.merge(region: 'eu'))
         end
       end
 
       context 'when region is an attribute of user' do
         it 'should create event B successfully' do
           user.region = :eu
-          play_request(eu_api_host, request_body, eu_headers)
+          play_request(request_body)
         end
       end
     end
