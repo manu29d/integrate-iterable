@@ -48,7 +48,6 @@ module ExternalApi
         url = "#{get_base_url(region)}#{API_URL}/track"
         payload = { email: user&.email, eventName: event_type }
         post(url, payload, get_headers(region))
-        Email.new.send_email(region, user)
       end
     end
 

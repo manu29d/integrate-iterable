@@ -15,6 +15,7 @@ class EventsController < ApplicationController
 
   def create_event_b
     ExternalApi::Iterable::Event.new.create_event('Event B', params[:region] || nil, current_user)
+    ExternalApi::Iterable::Email.new.send_email(params[:region], current_user)
     flash[:alert] = 'Created event B'
     redirect_to root_url
   end
