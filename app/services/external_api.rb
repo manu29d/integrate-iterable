@@ -8,8 +8,7 @@ module ExternalApi
   module HandleRequests
     DEFAULT_HEADERS = {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      use_ssl: true
+      'Accept': 'application/json'
     }.freeze
 
     # The following 2 methods look very similar
@@ -25,7 +24,7 @@ module ExternalApi
 
     def post(url, payload, headers = {})
       uri = URI(url)
-      res = Net::HTTP.post_response(uri, payload, DEFAULT_HEADERS.merge(headers))
+      res = Net::HTTP.post(uri, payload.to_json, DEFAULT_HEADERS.merge(headers))
       body = res.is_a?(Net::HTTPSuccess) ? JSON.parse(res.body) : nil
       body || res
     end
