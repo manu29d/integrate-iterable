@@ -9,6 +9,7 @@ module ExternalApi
     # If not, the following requests are supposed to fail
     API_KEY = ENV.fetch('ITERABLE_API_KEY') || ''
     BASE_URL = 'https://api.iterable.com/api'
+    DEFAULT_HEADERS = { 'Api-Key': API_KEY }.freeze
 
     # A separate class has been added for each of the APIs we're using
     # Since each sub-heading in the Swagger docs includes multiple
@@ -25,7 +26,7 @@ module ExternalApi
 
         url = "#{BASE_URL}#{API_URL}/track"
         payload = { email: user_email, eventName: event_type }
-        post(url, payload)
+        post(url, payload, DEFAULT_HEADERS)
       end
     end
 
@@ -42,13 +43,13 @@ module ExternalApi
         return unless email
 
         url = "#{BASE_URL}#{API_URL}/#{email}"
-        get(url)
+        get(url, DEFAULT_HEADERS)
       end
 
       def create_user(user_email)
         url = "#{BASE_URL}#{API_URL}/update"
         payload = { email: user_email }
-        post(url, payload)
+        post(url, payload, DEFAULT_HEADERS)
       end
     end
   end
