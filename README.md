@@ -19,9 +19,8 @@ This is a Rails project developed with Rails version 7.1.3 and Ruby version 3.2.
 ## Setup Instructions
 
 1. **Clone the Repository**:
-Please host it as per your choice of platform. Then,
 ```bash
-git clone <repository_url>
+git clone https://github.com/manu29d/integrate-iterable.git
 ```
 2. **Install Dependencies**:
 ```bash
